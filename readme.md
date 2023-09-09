@@ -20,7 +20,7 @@ Don't worry, I've made a SDL version too
  + Customization
  + No Forced Dependendcies Expect Raylib
  + Easier Rectangle Manipulation
- + ~Sprite Management~
+ + Sprite Management
  + ~Audio Management~
  + ~Network Management~
  + Physics Integration
@@ -35,11 +35,14 @@ It will copy the implementation of Astro and physac into that source file that y
 
 If you are going to use [Physac] then pass `-DASTRO_PHY` as a one of CFLAGS/CXXFLAGS
 
+## Documentation
+
+Everything is plain and simple, just look the non - implementation section of the header
+
+
 ## Usage/Examples
 - [Physics Example](https://github.com/mastercuber55/Physics-Example)
 - [Snake Game](https://github.com/mastercuber55/Snake-Game)
-```
-
 
 ## License
 

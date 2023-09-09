@@ -1,13 +1,3 @@
-/**
- * @index	
- * 	Preprocessors
- * 	Structures
- * 	Variables
- * 	InitQuit Functions
- * 	Utility Functions
- * 	Rectangle Functions
- */
-
 #ifndef ASTRO_H
 #	define ASTRO_H
 
@@ -36,35 +26,27 @@ typedef struct PhysicsBody {} PhysicsBody;
 // AstroRectangle, Used for easier rectangle manipulation
 typedef struct AstroRectangle {
 	
-	float x, y, w, h;
-	double Rotation;
-	unsigned int TextureIndex;
+	float x, y, w, h;			// AstroRectangle Position And Size, Position will be replaced to PhyBody->position before rendering.
+	double Rotation;			// AstroRectangle Rotation from center unlike raylib
+	unsigned int TextureIndex;	// AstroRectangle TextureIndex in AstroTexturesHash & AstroTextures
 
-	Color Tint;
-	PhysicsBody PhyBody;
+	Color Tint;					// AstroRectangle Tint
+	PhysicsBody PhyBody;		// Physac Physics Body
 } AstroRectangle;
 
-extern bool AstroRenderLoop;
-extern unsigned int AstroTexturesCount;
-extern unsigned int AstroTexturesHash[ASTRO_MAX_TEXTURES];
-extern Texture AstroTextures[ASTRO_MAX_TEXTURES];
+extern bool AstroRenderLoop;								// Usage:	AstroRenderLoop = true; while(AstroRenderLoop && !WindowShouldClose) { if(SomethingCameUp) AstroRenderLoop = false; }
+extern unsigned int AstroTexturesCount;						// Amount of loaded textures by Astro
+extern unsigned int AstroTexturesHash[ASTRO_MAX_TEXTURES];	// Hashes of file names of textures loaded by Astro
+extern Texture AstroTextures[ASTRO_MAX_TEXTURES];			// Raylib Texture(s) loaded by Astro
 
-#ifdef __cplusplus
-	extern "C" {
-#endif
+void AstroInit(Vector2 WindowSize, const char * WindowTitle); 	// Initialize Raylib, GL Context, Physics, disable exit key.
+bool AstroQuit();												// Uninitialize Raylib, GL Context, Physics, return EXIT_SUCCESS
 
-void AstroInit(Vector2 WindowSize, const char * WindowTitle);
-bool AstroQuit();					
+unsigned int AstroHash(const char * String);				// Hash a string
 
-unsigned int AstroHash(const char * String);
-
-AstroRectangle AstroCreateRectangleColored(float x, float y, float w, float h, Color Tint);
-AstroRectangle AstroCreateRectangleTextured(float x, float y, float w, float h, const char * TextureFile);
-void AstroDrawRectangle(AstroRectangle * Rect);
-
-#ifdef __cplusplus
-	}
-#endif
+AstroRectangle AstroCreateRectangleColored(float x, float y, float w, float h, Color Tint);	// Create a colored AstroRectangle
+AstroRectangle AstroCreateRectangleTextured(float x, float y, float w, float h, const char * TextureFile);	// Create a textured AstroRectangle
+void AstroDrawRectangle(AstroRectangle * Rect);	// Draw any AstroRectangle
 	
 #endif
 

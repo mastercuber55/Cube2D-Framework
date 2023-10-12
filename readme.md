@@ -1,50 +1,58 @@
 
-# CGE_ Raylib Framework
-Behold CGE_ Raylib Framework, a header only C/C++ celestial game development framework like non other on our planet to make your games shine. it's a universe of stars at your fingertips for effortlessly enhancing your game's shining as you travel though the cosmic universe of game development and anticipate even more stars on the horizon to make your games shine even more joining the constellation of possibilities, expanding your cosmic playground.
+# Cube2D Game Framework
 
-#### Non Dramatic Description
-A header C/C++ only framework to make game development with raylib even easier.
+Cube2D, a header only 2D easy-to-use game framework for making video games with raylib even easier written in C++11. 
 
-### Wait what? You use SDL? 
-Don't worry, I've made a SDL version too
 
-[CGE_ SDL Framework](https://github.com/mastercuber55/CGE_-SDL-Framework)
+## Features
 
-## Why Choose CGE_?
+- Easy To Use
+- Header Only
+- Customization
+- Only [raylib](https://raylib.com) required
+- Easier Rectangle Manipulation
+- Sprite Management
 
-~Strikethrough~ ones are upcoming
- 
- + C / C++
- + Easy To Use
- + Header Only
- + Customization
- + No Forced Dependendcies Expect Raylib
- + Easier Rectangle Manipulation
- + Sprite Management
- + ~Audio Management~
- + ~Network Management~
- + Physics Integration
+### Upcoming Features
+
+- Network Management
+- Audio Management
+
+
 ## Installation & Configuration
 
-    git clone https://github.com/mastercuber55/CGE_-Raylib-Framework.git --recursive
+```bash
+git clone https://github.com/mastercuber55/Cube2D-Game-Framework.git
+```
 
-Copy `./CGE_-Raylib-Framework/CGE_.h` & `./CGE_-Raylib-Framework/Physac/src/physac.h` and put them in a include path [ I like raylib/include. ]
-In any SINGLE source file `#define CGE_IMPLEMENTATION`.
-It will copy the implementation of CGE_ and physac into that source file that you don't edit very much.
-[main.c/main.cpp for me. ] and as for other files just regular old `#include <CGE_.h>`
+### Default
 
-If you are going to use [Physac] then pass `-DCGE_PHY` as a one of CFLAGS/CXXFLAGS
+In just a SINGLE file `#define CGE_IMPL` before `#include <Cube2D.hpp>`
+
+### Static Linking
+
+Create a file named `Cube2D.cpp` with contents of `Cube2D.hpp` in it and run the following.
+
+```bash
+g++ -o Cube2D.o -c Cube2D.cpp -D CGE_IMPL -I"C:/raylib/include" && ar rcs libCube2D.a -o Cube2D.o
+```
+
+and link to it using `-lCube2D`
+
+
+
 
 ## Documentation
+Everything is plain and simple so just look into the header's top part and you'll understand everything.
 
-Everything is plain and simple, just look the non - implementation section of the header
-
-
-## Usage/Examples
-- [Physics Example](https://github.com/mastercuber55/Physics-Example)
-- [Snake Game](https://github.com/mastercuber55/Snake-Game)
 
 ## License
 
-[MIT](https://github.com/mastercuber55/CGE_-Raylib-Framework/blob/main/LICENSE.txt)
+[MIT](https://choosealicense.com/licenses/mit/)
+
+
+## Usage/Examples
+
+- [Physics Example](https://github.com/mastercuber55/Physics-Example)
+- [Snake Game](https://github.com/mastercuber55/Snake-Game)
 

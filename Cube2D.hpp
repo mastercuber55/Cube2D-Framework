@@ -15,7 +15,7 @@
 *       [raylib] for almost everything. 
 *
 *   OPTIONAL DEPENDENCIES:
-*		[raygui] for c2GuiWIndow
+*		[raygui] for GuiWIndow
 * 	
 *   LICENSE: MIT
 *
@@ -64,48 +64,54 @@
 #include <functional>
 #include <string>
 
+namespace Engine {
+
 //----------------------------------------------------------------------------------
 // Structures Definitions (Module: Structures)
 //----------------------------------------------------------------------------------
 
-// c2Scene, Used for scene management.
-struct c2Scene {
+// Scene, Used for scene management.
+struct Scene {
 
 	Color BackgroundColor;
 	bool KeepRunning;
 	int CodeToReturn;
 
-	c2Scene(Color BackgroundColor = CGE_SCENE_DEFAULT_COLOR);
+	Scene(Color BackgroundColor = CGE_SCENE_DEFAULT_COLOR);
 	virtual bool ShouldClose();
 	virtual int Run();
 	virtual void Close(int CodeToReturn = 0);
 	virtual void HandleEventsAndLogics();
 	virtual void Draw();
 
-	~c2Scene();
+	~Scene();
 };
 
-// c2Rect, Used for easier rectangle manipulation
-struct c2Rect {
+// Rect, Used for easier rectangle manipulation
+struct Rect {
 	
 	float x, y, w, h;								
-	double Rotation;								
+	double Rotation;
 
 	std::string TextureFile;						
 	Rectangle Source;								
 	Color Tint;										
 
-	c2Rect(float x, float y, float w, float h, Color Tint);
-	c2Rect(Rectangle Destination, Color Tint);	
-	c2Rect(										
+	Rect(float x, float y, float w, float h, Color Tint);
+	Rect(Rectangle Destination, Color Tint);	
+	Rect(										
 		Rectangle Destination, 
 		std::string TextureFile, Rectangle Source = CGE_DEFAULT_SRC
 	);
-	~c2Rect();
+	~Rect();
 
-	void SetPosition(Vector2 NewPosition);
 	void SetTextureFile(std::string TextureFile);	
 	void Draw();									
+
+	bool Colliding(Rect * Other);
+
+	void SetPosition(Vector2 NewPosition);
+	void operator=(Vector2 NewPosition);
 
 	Vector2 GetCenter();							
 	operator Vector2() const;						
@@ -113,7 +119,7 @@ struct c2Rect {
 };
 
 #ifdef CGE_RAYGUI
-struct c2GuiWindow {
+struct GuiWindow {
 
 	bool Drag;
 	bool Hidden;
@@ -122,7 +128,7 @@ struct c2GuiWindow {
 	Camera2D Cam;
 	std::string Title;
 
-	c2GuiWindow(Rectangle Destination, std::string Title);
+	GuiWindow(Rectangle Destination, std::string Title);
 
 	void HandleEventsAndLogics();
 	void Draw(std::function<void(Vector2 Offset)> Function);
@@ -133,18 +139,20 @@ struct c2GuiWindow {
 // Initialization And Closing Functions (Module: Core)
 //------------------------------------------------------------------------------------
 //
-void c2Init(int WindowWidth, int WindowHeight, std::string WindowTitle);
-void c2Close();
+void Init(int WindowWidth, int WindowHeight, std::string WindowTitle);
+void Close();
 
 //------------------------------------------------------------------------------------
 // Tool Functions (Module: Tools)
 //------------------------------------------------------------------------------------
 
-unsigned int c2GetShapesCount();	
-void c2WASDMovement(c2Rect * Object, float Speed);
-bool c2AreColorSame(Color A, Color B);
-#endif // RAY_GAME_FRAMEWORK
+unsigned int GetRectsCount();	
+void WASDMovement(Rect * Object, float Speed);
+bool AreColorSame(Color A, Color B);
+Vector2 GetRandomPosition(Camera2D Cam);
 
+}
+#endif // RAY_GAME_FRAMEWORK
 //------------------------------------------------------------------------------------
 // CGE Implementation (Module: Implementation)
 // No need to go any further you know.
@@ -155,31 +163,34 @@ bool c2AreColorSame(Color A, Color B);
 #define P2E_IMPL
 
 #include <unordered_map>
+#include <set>
 #include <algorithm>
 
 //------------------------------------------------------------------------------------
 // Variables (Module: Variables)
 //------------------------------------------------------------------------------------
 
-std::unordered_map<std::string, Texture> c2Textures;
-unsigned int c2ShapesCount = 0;
+namespace Engine {
+
+std::unordered_map<std::string, Texture> Textures;
+unsigned int RectsCount = 0;
 
 //----------------------------------------------------------------------------------
 // Structures Definitions (Module: Structures)
 //----------------------------------------------------------------------------------
 
-c2Scene::c2Scene(Color BackgroundColor) {
+Scene::Scene(Color BackgroundColor) {
 	this->BackgroundColor = BackgroundColor;
 	this->CodeToReturn = 0;
 	this->KeepRunning = true;
 }
-void c2Scene::HandleEventsAndLogics() {}
-void c2Scene::Draw() {}
-void c2Scene::Close(int CodeToReturn) {
+void Scene::HandleEventsAndLogics() {}
+void Scene::Draw() {}
+void Scene::Close(int CodeToReturn) {
 	this->KeepRunning = false;
 	this->CodeToReturn = CodeToReturn;
 }
-int c2Scene::Run() {
+int Scene::Run() {
 
 	while(!this->ShouldClose()) {
 		
@@ -197,13 +208,14 @@ int c2Scene::Run() {
 	}
 	return this->CodeToReturn;
 }
-bool c2Scene::ShouldClose() { 
+bool Scene::ShouldClose() { 
 	return !KeepRunning || WindowShouldClose();
 }
-c2Scene::~c2Scene() {}
+Scene::~Scene() {}
 
-c2Rect::c2Rect(float x, float y, float w, float h, Color Tint) : c2Rect::c2Rect({x, y, w, h}, Tint) {}
-c2Rect::c2Rect(Rectangle Rec, Color Tint) {
+Rect::Rect(float x, float y, float w, float h, Color Tint) : Rect::Rect({x, y, w, h}, Tint) {}
+Rect::Rect(Rectangle Rec, Color Tint) {
+
 	this->x = Rec.x, this->y = Rec.y,				
 	this->w = Rec.width, this->h = Rec.height,		
 	this->Rotation = 0.0,							
@@ -211,9 +223,8 @@ c2Rect::c2Rect(Rectangle Rec, Color Tint) {
 	this->Source = { 0, 0, this->w, this->h },		
 	this->Tint = Tint;								
 
-	c2ShapesCount++;
 }
-c2Rect::c2Rect(Rectangle Destination, std::string TextureFile, Rectangle Source) : c2Rect(Destination, WHITE) {
+Rect::Rect(Rectangle Destination, std::string TextureFile, Rectangle Source) : Rect(Destination, WHITE) {
 	
 	if(Source.width == -1 && Source.height == -1)   
 		this->Source.width = Destination.width, this->Source.height = Destination.height;
@@ -222,44 +233,49 @@ c2Rect::c2Rect(Rectangle Destination, std::string TextureFile, Rectangle Source)
 	
 	this->SetTextureFile(TextureFile);
 }
-c2Rect::~c2Rect() {
-	c2ShapesCount--;
-}
-void c2Rect::SetPosition(Vector2 Position) {
-	this->x = Position.x, this->y = Position.y;
-}
-void c2Rect::SetTextureFile(std::string TextureFile) {
+Rect::~Rect() {}
+void Rect::SetTextureFile(std::string TextureFile) {
 
 	this->TextureFile = TextureFile; 						
-	if(c2Textures.find(TextureFile) != c2Textures.end()) return;
-	c2Textures[TextureFile] = LoadTexture(("Resources/GFX/" + TextureFile).c_str());
+	if(Textures.find(TextureFile) != Textures.end()) return;
+	Textures[TextureFile] = LoadTexture(("Resources/GFX/" + TextureFile).c_str());
 }
-void c2Rect::Draw() {
+void Rect::Draw() {
 
 	(this->TextureFile.empty()) ? 
 		DrawRectangle(this->x, this->y, this->w, this->h, this->Tint)
-	:	DrawTexturePro(
-		c2Textures[this->TextureFile], 
-		this->Source, 
-		(Rectangle){ this->x + this->w / 2.0f, this->y + this->h / 2.0f, this->w, this->h }, 
-		(Vector2){ this->w / 2.0f, this->h / 2.0f }, 
-		this->Rotation, 
-		this->Tint
-	);
+	:	
+		DrawTexturePro(
+			Textures[this->TextureFile], 
+			this->Source, 
+			(Rectangle){ this->x + this->w / 2.0f, this->y + this->h / 2.0f, this->w, this->h }, 
+			(Vector2){ this->w / 2.0f, this->h / 2.0f }, 
+			this->Rotation, 
+			this->Tint
+		);
 }
-Vector2 c2Rect::GetCenter() {
+bool Rect::Colliding(Rect * Other) {
+	return CheckCollisionRecs(*this, *Other);
+}
+void Rect::SetPosition(Vector2 Position) {
+	this->x = Position.x, this->y = Position.y;
+}
+void Rect::operator=(Vector2 NewPosition) {
+	this->SetPosition(NewPosition);
+}
+Vector2 Rect::GetCenter() {
 	return {this->x + this->w / 2.0f, this->y + this->h / 2.0f};
 }
-c2Rect::operator Vector2() const {
+Rect::operator Vector2() const {
 	return { this->x, this->y };
 }
-c2Rect::operator Rectangle() const {
+Rect::operator Rectangle() const {
 	return { this->x, this->y, this->w, this->h };
 }
 
 #ifdef RAYGUI_H
 
-c2GuiWindow::c2GuiWindow(Rectangle Destination, std::string Title) {
+GuiWindow::GuiWindow(Rectangle Destination, std::string Title) {
 	this->x = Destination.x,
 	this->y = Destination.y,
 	this->w = Destination.width,
@@ -271,7 +287,7 @@ c2GuiWindow::c2GuiWindow(Rectangle Destination, std::string Title) {
 	this->Drag = false;
 }
 
-void c2GuiWindow::HandleEventsAndLogics() {
+void GuiWindow::HandleEventsAndLogics() {
 	if(this->Hidden) return;
 	if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !Drag && CheckCollisionPointRec(GetMousePosition(), { x, y, w, 20.0f })) Drag = true;
 	if(Drag) {
@@ -285,7 +301,7 @@ void c2GuiWindow::HandleEventsAndLogics() {
 	}
 }
 
-void c2GuiWindow::Draw(std::function<void(Vector2 Offset)> Function) {
+void GuiWindow::Draw(std::function<void(Vector2 Offset)> Function) {
 	if(this->Hidden) return;
 	this->Hidden = GuiWindowBox((Rectangle){ x, y, w, h }, Title.c_str());
 	
@@ -293,7 +309,7 @@ void c2GuiWindow::Draw(std::function<void(Vector2 Offset)> Function) {
 }
 #endif
 
-void c2Init(int WindowWidth, int WindowHeight, std::string Title) {
+void Init(int WindowWidth, int WindowHeight, std::string Title) {
 
 	TraceLog(LOG_INFO, "Initializing Cube2D %s", CUBE2D_GAME_FRAMEWORK); 
 
@@ -303,7 +319,7 @@ void c2Init(int WindowWidth, int WindowHeight, std::string Title) {
 	SetExitKey(KEY_NULL);							
 	SetTargetFPS(CGE_DEFAULT_FPS);					
 }
-void c2Close() {
+void Close() {
 
 
 	CloseAudioDevice();
@@ -316,18 +332,26 @@ void c2Close() {
 // Tool Functions (Module: Tools)
 //------------------------------------------------------------------------------------
 
-void c2WASDMovement(c2Rect * Object, float Speed) {
+void WASDMovement(Rect * Object, float Speed) {
 	if(IsKeyDown(KEY_W)) Object->y += -Speed;
 	if(IsKeyDown(KEY_A)) Object->x += -Speed;
 	if(IsKeyDown(KEY_S)) Object->y += +Speed;
 	if(IsKeyDown(KEY_D)) Object->x += +Speed;
 }
 
-unsigned int c2GetShapesCount() {
-	return c2ShapesCount;
+unsigned int GetRectsCount() {
+	return RectsCount;
 }
-bool c2AreColorSame(Color A, Color B) {
+bool AreColorSame(Color A, Color B) {
 	return ColorToInt(A) == ColorToInt(B);
+}
+Vector2 GetRandomPosition(Camera2D Cam) {
+	return {
+		GetRandomValue(Cam.target.x - Cam.offset.x, Cam.target.x + Cam.offset.x),
+		GetRandomValue(Cam.target.y - Cam.offset.y, Cam.target.y + Cam.offset.y)
+	};
+}
+
 }
 
 #endif // CGE_IMPLEMENTATION

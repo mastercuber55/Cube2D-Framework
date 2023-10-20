@@ -63,6 +63,7 @@
 
 #include <functional>
 #include <string>
+#include <memory>
 
 namespace Engine {
 
@@ -81,7 +82,7 @@ struct Scene {
 	virtual bool ShouldClose();
 	virtual int Run();
 	virtual void Close(int CodeToReturn = 0);
-	virtual void HandleEventsAndLogics();
+	virtual void Update();
 	virtual void Draw();
 
 	~Scene();
@@ -97,7 +98,7 @@ struct Rect {
 	Rectangle Source;								
 	Color Tint;										
 
-	Rect(float x, float y, float w, float h, Color Tint);
+	Rect(float x, float y, float w, float h);
 	Rect(Rectangle Destination, Color Tint);	
 	Rect(										
 		Rectangle Destination, 
@@ -105,17 +106,20 @@ struct Rect {
 	);
 	~Rect();
 
-	void SetTextureFile(std::string TextureFile);	
-	void Draw();									
-
-	bool Colliding(Rect * Other);
-
 	void SetPosition(Vector2 NewPosition);
 	void operator=(Vector2 NewPosition);
+	void SetTextureFile(std::string TextureFile); 
+	void SetTint(Color Tint);
+	void Draw();									
 
-	Vector2 GetCenter();							
+	Vector2 GetCenter();	
+	Vector2 GetPosition();
+	Vector2 GetRectangle();						
 	operator Vector2() const;						
 	operator Rectangle() const;						
+
+	bool IsColliding(std::shared_ptr<Rect> Other);
+
 };
 
 #ifdef CGE_RAYGUI
@@ -130,7 +134,7 @@ struct GuiWindow {
 
 	GuiWindow(Rectangle Destination, std::string Title);
 
-	void HandleEventsAndLogics();
+	void Update();
 	void Draw(std::function<void(Vector2 Offset)> Function);
 };
 #endif // CGE_RAYGUI
@@ -141,13 +145,13 @@ struct GuiWindow {
 //
 void Init(int WindowWidth, int WindowHeight, std::string WindowTitle);
 void Close();
-
+ 
 //------------------------------------------------------------------------------------
 // Tool Functions (Module: Tools)
 //------------------------------------------------------------------------------------
 
 unsigned int GetRectsCount();	
-void WASDMovement(Rect * Object, float Speed);
+void WASDMovement(std::shared_ptr<Rect> Object, float Speed);
 bool AreColorSame(Color A, Color B);
 Vector2 GetRandomPosition(Camera2D Cam);
 
@@ -173,7 +177,6 @@ Vector2 GetRandomPosition(Camera2D Cam);
 namespace Engine {
 
 std::unordered_map<std::string, Texture> Textures;
-unsigned int RectsCount = 0;
 
 //----------------------------------------------------------------------------------
 // Structures Definitions (Module: Structures)
@@ -184,7 +187,7 @@ Scene::Scene(Color BackgroundColor) {
 	this->CodeToReturn = 0;
 	this->KeepRunning = true;
 }
-void Scene::HandleEventsAndLogics() {}
+void Scene::Update() {}
 void Scene::Draw() {}
 void Scene::Close(int CodeToReturn) {
 	this->KeepRunning = false;
@@ -197,7 +200,7 @@ int Scene::Run() {
 		//------------------------------------------------------------------------------------
 		// Event And Logic Handling
 		//------------------------------------------------------------------------------------
-		this->HandleEventsAndLogics();
+		this->Update();
 		//------------------------------------------------------------------------------------
 		//  Drawing
 		//------------------------------------------------------------------------------------		
@@ -213,11 +216,12 @@ bool Scene::ShouldClose() {
 }
 Scene::~Scene() {}
 
-Rect::Rect(float x, float y, float w, float h, Color Tint) : Rect::Rect({x, y, w, h}, Tint) {}
-Rect::Rect(Rectangle Rec, Color Tint) {
-
-	this->x = Rec.x, this->y = Rec.y,				
-	this->w = Rec.width, this->h = Rec.height,		
+Rect::Rect(float x, float y, float w, float h) {
+	this->x = x, this->y = y;
+	this->w = w, this->h = h;
+}
+Rect::Rect(Rectangle Rec, Color Tint) : Rect(Rec.x, Rec.y, Rec.width, Rec.height) {
+		
 	this->Rotation = 0.0,							
 	// this->TextureFile = "NO NEED";					
 	this->Source = { 0, 0, this->w, this->h },		
@@ -238,7 +242,10 @@ void Rect::SetTextureFile(std::string TextureFile) {
 
 	this->TextureFile = TextureFile; 						
 	if(Textures.find(TextureFile) != Textures.end()) return;
-	Textures[TextureFile] = LoadTexture(("Resources/GFX/" + TextureFile).c_str());
+	Textures[TextureFile] = LoadTexture(TextureFile.c_str());
+}
+void Rect::SetTint(Color Tint) {
+	this->Tint = Tint;
 }
 void Rect::Draw() {
 
@@ -254,7 +261,7 @@ void Rect::Draw() {
 			this->Tint
 		);
 }
-bool Rect::Colliding(Rect * Other) {
+bool Rect::IsColliding(std::shared_ptr<Rect> Other) {
 	return CheckCollisionRecs(*this, *Other);
 }
 void Rect::SetPosition(Vector2 Position) {
@@ -265,6 +272,12 @@ void Rect::operator=(Vector2 NewPosition) {
 }
 Vector2 Rect::GetCenter() {
 	return {this->x + this->w / 2.0f, this->y + this->h / 2.0f};
+}
+Vector2 Rect::GetPosition() {
+	return *this;
+}
+Vector2 Rect::GetRectangle() {
+	return *this;
 }
 Rect::operator Vector2() const {
 	return { this->x, this->y };
@@ -287,7 +300,7 @@ GuiWindow::GuiWindow(Rectangle Destination, std::string Title) {
 	this->Drag = false;
 }
 
-void GuiWindow::HandleEventsAndLogics() {
+void GuiWindow::Update() {
 	if(this->Hidden) return;
 	if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !Drag && CheckCollisionPointRec(GetMousePosition(), { x, y, w, 20.0f })) Drag = true;
 	if(Drag) {
@@ -332,7 +345,7 @@ void Close() {
 // Tool Functions (Module: Tools)
 //------------------------------------------------------------------------------------
 
-void WASDMovement(Rect * Object, float Speed) {
+void WASDMovement(std::shared_ptr<Rect> Object, float Speed) {
 	if(IsKeyDown(KEY_W)) Object->y += -Speed;
 	if(IsKeyDown(KEY_A)) Object->x += -Speed;
 	if(IsKeyDown(KEY_S)) Object->y += +Speed;
@@ -347,8 +360,8 @@ bool AreColorSame(Color A, Color B) {
 }
 Vector2 GetRandomPosition(Camera2D Cam) {
 	return {
-		GetRandomValue(Cam.target.x - Cam.offset.x, Cam.target.x + Cam.offset.x),
-		GetRandomValue(Cam.target.y - Cam.offset.y, Cam.target.y + Cam.offset.y)
+		(float)(GetRandomValue(Cam.target.x - Cam.offset.x, Cam.target.x + Cam.offset.x)),
+		(float)(GetRandomValue(Cam.target.y - Cam.offset.y, Cam.target.y + Cam.offset.y))
 	};
 }
 

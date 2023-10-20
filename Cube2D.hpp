@@ -9,7 +9,7 @@
 *
 *   NOTES:
 *		- In just a SINGLE file before including #define CGE_IMPLEMENTATION
-*		- Macros a prefixed with CGE while all functions are prefixed with r
+*		- Macros are prefixed with CGE
 * 		
 *   DEPENDENCIES:
 *       [raylib] for almost everything. 
@@ -37,8 +37,8 @@
 * 
 ********************************************************************************************************************************************************/
 
-#ifndef CUBE2D_GAME_FRAMEWORK
-#define CUBE2D_GAME_FRAMEWORK "1.2"
+#ifndef CUBE2D_FRAMEWORK
+#define CUBE2D_FRAMEWORK "1.2"
 
 #ifndef CGE_DEFAULT_SRC
 #	define CGE_DEFAULT_SRC { 0, 0, -1, -1 }
@@ -149,14 +149,13 @@ void Close();
 //------------------------------------------------------------------------------------
 // Tool Functions (Module: Tools)
 //------------------------------------------------------------------------------------
-
-unsigned int GetRectsCount();	
+	
 void WASDMovement(std::shared_ptr<Rect> Object, float Speed);
 bool AreColorSame(Color A, Color B);
 Vector2 GetRandomPosition(Camera2D Cam);
 
 }
-#endif // RAY_GAME_FRAMEWORK
+#endif // CUBE2D_FRAMEWORK
 //------------------------------------------------------------------------------------
 // CGE Implementation (Module: Implementation)
 // No need to go any further you know.
@@ -352,9 +351,6 @@ void WASDMovement(std::shared_ptr<Rect> Object, float Speed) {
 	if(IsKeyDown(KEY_D)) Object->x += +Speed;
 }
 
-unsigned int GetRectsCount() {
-	return RectsCount;
-}
 bool AreColorSame(Color A, Color B) {
 	return ColorToInt(A) == ColorToInt(B);
 }

@@ -323,7 +323,7 @@ void GuiWindow::Draw(std::function<void(Vector2 Offset)> Function) {
 
 void Init(int WindowWidth, int WindowHeight, std::string Title) {
 
-	TraceLog(LOG_INFO, "Initializing Cube2D %s", CUBE2D_GAME_FRAMEWORK); 
+	TraceLog(LOG_INFO, "Initializing Cube2D %s", CUBE2D_FRAMEWORK); 
 
 	InitWindow(WindowWidth, WindowHeight, Title.c_str());
 	InitAudioDevice();				

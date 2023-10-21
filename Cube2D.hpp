@@ -118,7 +118,7 @@ struct Rect {
 	operator Vector2() const;						
 	operator Rectangle() const;						
 
-	bool IsColliding(std::shared_ptr<Rect> Other);
+	bool IsColliding(Rect * Other);
 
 };
 
@@ -150,7 +150,7 @@ void Close();
 // Tool Functions (Module: Tools)
 //------------------------------------------------------------------------------------
 	
-void WASDMovement(std::shared_ptr<Rect> Object, float Speed);
+void WASDMovement(Rect * Object, float Speed);
 bool AreColorSame(Color A, Color B);
 Vector2 GetRandomPosition(Camera2D Cam);
 
@@ -260,7 +260,7 @@ void Rect::Draw() {
 			this->Tint
 		);
 }
-bool Rect::IsColliding(std::shared_ptr<Rect> Other) {
+bool Rect::IsColliding(Rect * Other) {
 	return CheckCollisionRecs(*this, *Other);
 }
 void Rect::SetPosition(Vector2 Position) {
@@ -344,7 +344,7 @@ void Close() {
 // Tool Functions (Module: Tools)
 //------------------------------------------------------------------------------------
 
-void WASDMovement(std::shared_ptr<Rect> Object, float Speed) {
+void WASDMovement(Rect * Object, float Speed) {
 	if(IsKeyDown(KEY_W)) Object->y += -Speed;
 	if(IsKeyDown(KEY_A)) Object->x += -Speed;
 	if(IsKeyDown(KEY_S)) Object->y += +Speed;

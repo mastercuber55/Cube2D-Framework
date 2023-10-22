@@ -217,10 +217,12 @@ Rect::Rect(float x, float y, float w, float h) {
 	this->w = w, this->h = h;
 	this->Tint = WHITE;
 	this->Source = CGE_WHOLE_FILE,
-	this->Rotation = 0.0,
+	this->Rotation = 0.0;
 }
+
 Rect::Rect(Rectangle Rec, Color Tint) : Rect(Rec.x, Rec.y, Rec.width, Rec.height), Tint(Tint) {}
-Rect::Rect(Rectangle Destination, std::string TextureFile, Rectangle Source) : Rect(Destination, WHITE), Source(Source) {
+Rect::Rect(Rectangle Destination, std::string TextureFile, Rectangle Source) : Rect(Destination, WHITE) {
+	this->Source = Source;
 	this->SetTextureFile(TextureFile);
 }
 Rect::~Rect() {}

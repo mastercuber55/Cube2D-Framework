@@ -40,12 +40,12 @@
 #ifndef CUBE2D_FRAMEWORK
 #define CUBE2D_FRAMEWORK "1.2"
 
-#ifndef CGE_DEFAULT_SRC
-#	define CGE_DEFAULT_SRC { 0, 0, -1, -1 }
+#ifndef CGE_WHOLE_FILE
+#	define CGE_WHOLE_FILE { 0, 0, -1, -1 }
 #endif // CGE_SRC_DEFAULT
 
-#ifndef CGE_SCENE_DEFAULT_COLOR
-#	define CGE_SCENE_DEFAULT_COLOR BLACK
+#ifndef CGE_SCENE_DEFAULT_BACKGROUND_COLOR
+#	define CGE_SCENE_DEFAULT_BACKGROUND_COLOR BLACK
 #endif
 
 #ifndef CGE_DEFAULT_FPS
@@ -59,11 +59,10 @@
 #		define RAYGUI_IMPLEMENTATION
 #	endif
 #	include <raygui.h>
+#	include <functional>
 #endif // CGE_RAYGUI
 
-#include <functional>
 #include <string>
-#include <memory>
 
 namespace Engine {
 
@@ -78,7 +77,7 @@ struct Scene {
 	bool KeepRunning;
 	int CodeToReturn;
 
-	Scene(Color BackgroundColor = CGE_SCENE_DEFAULT_COLOR);
+	Scene(Color BackgroundColor = CGE_SCENE_DEFAULT_BACKGROUND_COLOR);
 	virtual bool ShouldClose();
 	virtual int Run();
 	virtual void Close(int CodeToReturn = 0);
@@ -102,14 +101,14 @@ struct Rect {
 	Rect(Rectangle Destination, Color Tint);	
 	Rect(										
 		Rectangle Destination, 
-		std::string TextureFile, Rectangle Source = CGE_DEFAULT_SRC
+		std::string TextureFile, 
+		Rectangle Source = CGE_WHOLE_FILE
 	);
 	~Rect();
 
 	void SetPosition(Vector2 NewPosition);
 	void operator=(Vector2 NewPosition);
 	void SetTextureFile(std::string TextureFile); 
-	void SetTint(Color Tint);
 	void Draw();									
 
 	Vector2 GetCenter();	
@@ -163,10 +162,8 @@ Vector2 GetRandomPosition(Camera2D Cam);
 
 #ifdef CGE_IMPL
 #undef CGE_IMPL
-#define P2E_IMPL
 
 #include <unordered_map>
-#include <set>
 #include <algorithm>
 
 //------------------------------------------------------------------------------------
@@ -218,6 +215,7 @@ Scene::~Scene() {}
 Rect::Rect(float x, float y, float w, float h) {
 	this->x = x, this->y = y;
 	this->w = w, this->h = h;
+	this->Tint = WHITE;
 }
 Rect::Rect(Rectangle Rec, Color Tint) : Rect(Rec.x, Rec.y, Rec.width, Rec.height) {
 		
@@ -228,12 +226,7 @@ Rect::Rect(Rectangle Rec, Color Tint) : Rect(Rec.x, Rec.y, Rec.width, Rec.height
 
 }
 Rect::Rect(Rectangle Destination, std::string TextureFile, Rectangle Source) : Rect(Destination, WHITE) {
-	
-	if(Source.width == -1 && Source.height == -1)   
-		this->Source.width = Destination.width, this->Source.height = Destination.height;
-	else
-		this->Source = Source; 
-	
+	this->Source = Source; 
 	this->SetTextureFile(TextureFile);
 }
 Rect::~Rect() {}
@@ -242,9 +235,17 @@ void Rect::SetTextureFile(std::string TextureFile) {
 	this->TextureFile = TextureFile; 						
 	if(Textures.find(TextureFile) != Textures.end()) return;
 	Textures[TextureFile] = LoadTexture(TextureFile.c_str());
-}
-void Rect::SetTint(Color Tint) {
-	this->Tint = Tint;
+
+	if(
+		this->Source.x == 0 && 
+		this->Source.y == 0 && 
+		this->Source.width == -1 && 
+		this->Source.height == -1
+	) {
+		this->Source.width = Textures[TextureFile].width, 
+		this->Source.height = Textures[TextureFile].height;
+	} 
+
 }
 void Rect::Draw() {
 

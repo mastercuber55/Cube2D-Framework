@@ -42,7 +42,7 @@
 
 #ifndef CGE_WHOLE_FILE
 #	define CGE_WHOLE_FILE { 0, 0, -1, -1 }
-#endif // CGE_SRC_DEFAULT
+#endif // CGE_WHOLE_FILE
 
 #ifndef CGE_SCENE_DEFAULT_BACKGROUND_COLOR
 #	define CGE_SCENE_DEFAULT_BACKGROUND_COLOR BLACK
@@ -216,17 +216,11 @@ Rect::Rect(float x, float y, float w, float h) {
 	this->x = x, this->y = y;
 	this->w = w, this->h = h;
 	this->Tint = WHITE;
+	this->Source = CGE_WHOLE_FILE,
+	this->Rotation = 0.0,
 }
-Rect::Rect(Rectangle Rec, Color Tint) : Rect(Rec.x, Rec.y, Rec.width, Rec.height) {
-		
-	this->Rotation = 0.0,							
-	// this->TextureFile = "NO NEED";					
-	this->Source = { 0, 0, this->w, this->h },		
-	this->Tint = Tint;								
-
-}
-Rect::Rect(Rectangle Destination, std::string TextureFile, Rectangle Source) : Rect(Destination, WHITE) {
-	this->Source = Source; 
+Rect::Rect(Rectangle Rec, Color Tint) : Rect(Rec.x, Rec.y, Rec.width, Rec.height), Tint(Tint) {}
+Rect::Rect(Rectangle Destination, std::string TextureFile, Rectangle Source) : Rect(Destination, WHITE), Source(Source) {
 	this->SetTextureFile(TextureFile);
 }
 Rect::~Rect() {}

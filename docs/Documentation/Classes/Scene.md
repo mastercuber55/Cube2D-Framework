@@ -2,8 +2,8 @@
 title: Scene
 layout: default
 nav_order: 1
-parent: Documentation
-grand_parent: Classes
+parent: Classes
+grand_parent: Documentation
 has_children: true
 ---
 

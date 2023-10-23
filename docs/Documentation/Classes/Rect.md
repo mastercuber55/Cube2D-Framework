@@ -1,7 +1,7 @@
 ---
 title: Rect
 layout: default
-nav_order: 1
+nav_order: 2
 parent: Classes
 grand_parent: Documentation
 has_children: true

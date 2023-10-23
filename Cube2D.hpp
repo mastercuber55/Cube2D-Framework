@@ -129,17 +129,17 @@ struct Rect {
 #ifdef CGE_RAYGUI
 struct GuiWindow {
 
-	bool Drag;
 	bool Hidden;
 
 	float x, y, w, h;
-	Camera2D Cam;
 	std::string Title;
 
 	GuiWindow(Rectangle Destination, std::string Title);
 
 	void Update();
 	void Draw(std::function<void(Vector2 Offset)> Function);
+	
+	private: bool Drag;
 };
 #endif // CGE_RAYGUI
 

@@ -11,7 +11,7 @@ has_children: true
 
 ## Source Code
 Its good to have a source code look at what you use then we will look on them one by one.
-```cxx
+```cpp
 // Scene, Used for scene management.
 struct Scene {
 
@@ -31,7 +31,7 @@ struct Scene {
 ```
 
 ## Example
-```cxx
+```cpp
 struct SceneExample : Engine::Scene {
 	// Variables
 
@@ -82,3 +82,5 @@ For drawing your scene's game and stuff. You don't need to call `BeginDrawing`, 
 
 ### `~Scene()`
 Destructs current instance.
+
+[raylib]: https://raylib.com

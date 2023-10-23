@@ -11,7 +11,7 @@ has_children: true
 
 ## Source Code
 Its good to have a source code look at what you use then we will look on them one by one.
-```cxx
+```cpp
 // Rect, Used for easier rectangle manipulation
 // Rect, Used for easier rectangle manipulation
 struct Rect {
@@ -54,7 +54,7 @@ struct Rect {
 ```
 
 ## Example
-```cxx
+```cpp
 
 int main() {
 	Engine::Init(640, 480, "Example");
@@ -88,13 +88,13 @@ Determines the color of the rectangle upon drawing and also tints the rectangle'
 Constructs a new instance with given position and size.
 
 {: .note }
-For [Cube2D Engine users], this is the constructer binded into [wren].
+For [Cube2D Engine] users, this is the constructer binded into [wren].
 
 ### `Rect(Rectangle Destination, Color Tint)`
 Constructs a new instance with given position, size and the given color using `Rect(float x, float y, float w, float h)`.
 
 ### Textured Constructer 
-```cxx
+```cpp
 Rect(										
 		Rectangle Destination, 
 		std::string TextureFile, 
@@ -133,3 +133,5 @@ Checks if two rectangles are colliding. Calls `CheckCollisionRecs` and returns r
 
 ### `void Draw()`
 Draws the rectangle to the screen.
+
+[Cube2D Engine]: https://mastercuber55.github.io/Cube2D-Engine

@@ -65,7 +65,7 @@
 #include <string>
 
 namespace Engine {
-
+ 
 //----------------------------------------------------------------------------------
 // Structures Definitions (Module: Structures)
 //----------------------------------------------------------------------------------
@@ -89,7 +89,8 @@ struct Scene {
 
 // Rect, Used for easier rectangle manipulation
 struct Rect {
-	
+		
+	// Variables
 	float x, y, w, h;								
 	double Rotation;
 
@@ -97,6 +98,7 @@ struct Rect {
 	Rectangle Source;								
 	Color Tint;										
 
+	// De-Constructers
 	Rect(float x, float y, float w, float h);
 	Rect(Rectangle Destination, Color Tint);	
 	Rect(										
@@ -106,18 +108,21 @@ struct Rect {
 	);
 	~Rect();
 
+	// Setters
 	void SetPosition(Vector2 NewPosition);
 	void operator=(Vector2 NewPosition);
 	void SetTextureFile(std::string TextureFile); 
-	void Draw();									
 
+	// Getters
 	Vector2 GetCenter();	
 	Vector2 GetPosition();
 	Vector2 GetRectangle();						
 	operator Vector2() const;						
 	operator Rectangle() const;						
 
+	// Utilities
 	bool IsColliding(Rect * Other);
+	void Draw();									
 
 };
 
